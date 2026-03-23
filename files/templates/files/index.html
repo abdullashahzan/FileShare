@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FileShare</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a24;
+            --bg-hover: #22222e;
+            --accent: #8b5cf6;
+            --accent-glow: rgba(139, 92, 246, 0.3);
+            --accent-hover: #a78bfa;
+            --text-primary: #f0f0f5;
+            --text-secondary: #8888a0;
+            --border: #2a2a3a;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+        
+        body {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+        
+        /* Subtle background pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.06) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent), #6366f1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+        
+        .logo h1 {
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+        
+        .btn:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent);
+            transform: translateY(-1px);
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
+        }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 0;
+            font-size: 14px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        
+        .breadcrumb a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        
+        .breadcrumb a:hover {
+            color: var(--accent);
+        }
+        
+        .breadcrumb span {
+            color: var(--text-secondary);
+        }
+        
+        .file-list {
+            list-style: none;
+        }
+        
+        .file-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 16px 20px;
+            margin-bottom: 8px;
+            border-radius: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .file-item:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--accent);
+            transform: translateX(4px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .file-icon {
+            font-size: 22px;
+            width: 36px;
+            text-align: center;
+        }
+        
+        .file-name {
+            font-weight: 400;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 15px;
+        }
+        
+        .file-size {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-left: 12px;
+            white-space: nowrap;
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .file-item:hover .file-actions {
+            opacity: 1;
+        }
+        
+        .file-actions button, .file-actions a {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .file-actions button:hover, .file-actions a:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+        
+        .file-actions .btn-delete:hover {
+            background: var(--danger);
+            border-color: var(--danger);
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 80px 20px;
+            font-size: 15px;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--bg-secondary);
+            border: 1px solid var(--accent);
+            color: var(--text-primary);
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 500;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 30px var(--accent-glow);
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .toast.error {
+            border-color: var(--danger);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.2s ease;
+        }
+        
+        .modal.active { display: flex; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 32px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 380px;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .modal-content h3 {
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .modal-content input {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 15px;
+            margin-bottom: 20px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        .modal-content input:focus {
+            border-color: var(--accent);
+        }
+        
+        .modal-content .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+        
+        .preview-modal {
+            background: rgba(0, 0, 0, 0.95);
+        }
+        
+        .preview-modal img, .preview-modal video {
+            max-width: 90%;
+            max-height: 75vh;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        
+        .preview-filename {
+            color: var(--text-primary);
+            margin-bottom: 24px;
+            font-size: 16px;
+            text-align: center;
+            font-weight: 400;
+        }
+        
+        .close-preview {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .close-preview:hover {
+            background: var(--danger);
+            border-color: var(--danger);
+        }
+        
+        /* Upload area */
+        .upload-box {
+            border: 2px dashed var(--border);
+            border-radius: 20px;
+            padding: 60px 40px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .upload-box:hover, .upload-box.dragover {
+            border-color: var(--accent);
+            background: rgba(139, 92, 246, 0.05);
+        }
+        
+        .file-input { display: none; }
+        
+        @media (max-width: 600px) {
+            .container { padding: 16px; }
+            header { flex-direction: column; gap: 16px; align-items: flex-start; }
+            .header-actions { width: 100%; }
+            .header-actions .btn { flex: 1; }
+            .file-actions { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">⚡</div>
+                <h1>FileShare</h1>
+            </div>
+            <div class="header-actions">
+                <button class="btn" onclick="showFolderModal()">+ Folder</button>
+                <button class="btn btn-primary" onclick="triggerUpload()">Upload</button>
+            </div>
+        </header>
+        
+        <div class="breadcrumb">
+            {% for part in breadcrumb %}
+                <a href="?path={{ part.path }}">{{ part.name }}</a><span>/</span>
+            {% endfor %}
+        </div>
+        
+        <ul class="file-list">
+            {% for item in items %}
+                {% if item.type == 'parent' %}
+                <li class="file-item" onclick="navigateTo('{{ item.path }}')">
+                    <div class="file-info">
+                        <span class="file-icon">↩</span>
+                        <span class="file-name">Parent</span>
+                    </div>
+                </li>
+                {% elif item.type == 'dir' %}
+                <li class="file-item" onclick="navigateTo('{{ item.path }}')">
+                    <div class="file-info">
+                        <span class="file-icon">📁</span>
+                        <span class="file-name">{{ item.name }}</span>
+                    </div>
+                </li>
+                {% elif item.type == 'file' %}
+                <li class="file-item" id="file-item-{{ forloop.counter }}">
+                    <div class="file-info" onclick="handleFileClick('{{ item.path }}', '{{ item.name }}')">
+                        <span class="file-icon">📄</span>
+                        <span class="file-name">{{ item.name }}</span>
+                        <span class="file-size">{{ item.size|filesizeformat }}</span>
+                    </div>
+                    <div class="file-actions" id="file-actions-{{ forloop.counter }}"></div>
+                </li>
+                {% elif item.type == 'error' %}
+                <li class="file-item">
+                    <div class="file-info">
+                        <span class="file-icon">⚠️</span>
+                        <span class="file-name">{{ item.name }}</span>
+                    </div>
+                </li>
+                {% endif %}
+            {% empty %}
+            <div class="empty-state">
+                <p>📂 This folder is empty</p>
+            </div>
+            {% endfor %}
+        </ul>
+    </div>
+    
+    <!-- Upload Modal -->
+    <div class="modal" id="uploadModal">
+        <div class="modal-content">
+            <div class="upload-box" id="uploadArea">
+                <div style="font-size: 42px; margin-bottom: 16px;">📤</div>
+                <p style="margin-bottom: 20px; color: var(--text-secondary);">Drop files here or tap to select</p>
+                <input type="file" class="file-input" id="fileInput" multiple onchange="handleFiles(this.files)">
+                <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">Select Files</button>
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn" onclick="closeUpload()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Preview Modal -->
+    <div class="modal preview-modal" id="previewModal">
+        <button class="close-preview" onclick="closePreview()">✕</button>
+        <div class="preview-filename" id="previewFilename"></div>
+        <div id="previewContainer"></div>
+    </div>
+    
+    <!-- Folder Modal -->
+    <div class="modal" id="folderModal">
+        <div class="modal-content">
+            <h3>New Folder</h3>
+            <input type="text" id="folderName" placeholder="Folder name">
+            <div class="btn-group">
+                <button class="btn" onclick="closeFolderModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="createFolder()">Create</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast">Done!</div>
+    
+    <script>
+        const items = {{ items_json|safe }};
+        const imageExts = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'];
+        const videoExts = ['mp4', 'mkv', 'avi', 'mov', 'webm'];
+        const currentPath = "{{ current_path|escapejs }}";
+        
+        function getFileType(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            if (imageExts.includes(ext)) return 'image';
+            if (videoExts.includes(ext)) return 'video';
+            return 'other';
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            items.forEach((item, idx) => {
+                if (item.type === 'file') {
+                    const iconEl = document.querySelector('#file-item-' + (idx + 1) + ' .file-icon');
+                    const actionsEl = document.getElementById('file-actions-' + (idx + 1));
+                    const type = getFileType(item.name);
+                    
+                    if (iconEl) iconEl.textContent = type === 'image' ? '🖼️' : type === 'video' ? '🎬' : '📄';
+                    if (actionsEl && item.path && item.name) {
+                        let btns = '';
+                        if (type === 'image' || type === 'video') btns += '<button onclick="previewFile(\'' + item.path + '\', \'' + item.name + '\')">👁️</button>';
+                        btns += '<a href="/download/?path=' + encodeURIComponent(item.path) + '" download>⬇️</a>';
+                        btns += '<button class="btn-delete" onclick="deleteFile(\'' + item.path + '\', \'' + item.name + '\')">🗑️</button>';
+                        actionsEl.innerHTML = btns;
+                    }
+                }
+            });
+        });
+        
+        function navigateTo(path) { window.location.href = '?path=' + encodeURIComponent(path); }
+        function handleFileClick(path, name) { getFileType(name) !== 'other' ? previewFile(path, name) : navigateTo('?path=' + encodeURIComponent(path)); }
+        function triggerUpload() { document.getElementById('uploadModal').classList.add('active'); }
+        function closeUpload() { document.getElementById('uploadModal').classList.remove('active'); }
+        
+        function handleFiles(files) {
+            if (!files.length) return;
+            for (const file of files) {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('path', currentPath);
+                fetch('/upload/', { method: 'POST', body: formData })
+                    .then(r => r.json()).then(data => {
+                        if (data.success) { showToast('Uploaded: ' + data.name); setTimeout(() => location.reload(), 1000); }
+                        else showToast('Error: ' + (data.error || 'Upload failed'), true);
+                    });
+            }
+            closeUpload();
+        }
+        
+        const uploadArea = document.getElementById('uploadArea');
+        uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+        uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+        uploadArea.addEventListener('drop', e => { e.preventDefault(); uploadArea.classList.remove('dragover'); handleFiles(e.dataTransfer.files); });
+        
+        function previewFile(path, name) {
+            const type = getFileType(name);
+            const modal = document.getElementById('previewModal');
+            document.getElementById('previewFilename').textContent = name;
+            const container = document.getElementById('previewContainer');
+            const url = '/download/?path=' + encodeURIComponent(path);
+            container.innerHTML = type === 'image' ? '<img src="' + url + '">' : type === 'video' ? '<video controls autoplay><source src="' + url + '"></video>' : '';
+            modal.classList.add('active');
+        }
+        
+        function closePreview() { document.getElementById('previewModal').classList.remove('active'); }
+        
+        function deleteFile(path, name) {
+            if (!confirm('Delete ' + name + '?')) return;
+            fetch('/delete/', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path: path }) })
+                .then(r => r.json()).then(data => {
+                    if (data.success) { showToast('Deleted: ' + name); setTimeout(() => location.reload(), 1000); }
+                    else showToast('Error: ' + (data.error || 'Delete failed'), true);
+                });
+        }
+        
+        function showFolderModal() { document.getElementById('folderModal').classList.add('active'); }
+        function closeFolderModal() { document.getElementById('folderModal').classList.remove('active'); }
+        
+        function createFolder() {
+            const name = document.getElementById('folderName').value.trim();
+            if (!name) return;
+            fetch('/create-folder/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path: currentPath, name: name }) })
+                .then(r => r.json()).then(data => {
+                    if (data.success) { showToast('Created: ' + name); setTimeout(() => location.reload(), 1000); }
+                    else showToast('Error: ' + (data.error || 'Failed'), true);
+                });
+            closeFolderModal();
+        }
+        
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show' + (isError ? ' error' : '');
+            setTimeout(() => toast.className = 'toast', 3000);
+        }
+        
+        document.addEventListener('keydown', e => { 
+            if (e.key === 'Escape') { 
+                closeUpload(); 
+                closePreview(); 
+                closeFolderModal(); 
+            } 
+        });
+    </script>
+</body>
+</html>
