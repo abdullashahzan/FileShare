@@ -68,7 +68,25 @@ sudo tailscale up
 sudo tailscale set --hostname=device
 ```
 
-### 3. Start the Server
+### 3. Start the Server (Recommended)
+
+Use the startup script for a seamless experience:
+
+```bash
+# Make the script executable
+chmod +x start.sh
+
+# Run the server (starts Tailscale automatically, stops everything on Ctrl+C)
+./start.sh
+```
+
+This script will:
+- Automatically start Tailscale
+- Connect and get your Tailscale IP
+- Launch the Django server
+- Cleanly shut down Tailscale when you press Ctrl+C
+
+### Alternative: Manual Start
 
 ```bash
 # Get your Tailscale IP
@@ -120,8 +138,12 @@ python manage.py runserver 100.x.x.x:9000
 
 ```
 FileShare/
+├── start.sh            # Quick start script (recommended)
 ├── manage.py          # Django management script
 ├── requirements.txt   # Python dependencies
+├── README.md          # Documentation
+├── .gitignore        # Git ignore rules
+├── LICENSE           # MIT License
 ├── sharecore/        # Django project settings
 │   ├── settings.py   # App configuration
 │   └── urls.py       # URL routing
@@ -131,7 +153,7 @@ FileShare/
 │   └── templates/
 │       └── files/
 │           └── index.html  # Frontend UI
-└── shared_files/     # Default upload directory
+└── screenshots/      # App screenshots
 ```
 
 ## Available Commands
