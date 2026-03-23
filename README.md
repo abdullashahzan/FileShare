@@ -172,4 +172,4 @@ python migrate
 
 ## Credits
 
-Built with Django + Tailscale ❤️
+Created by: Abdulla Shahzan
