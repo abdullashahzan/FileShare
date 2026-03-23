@@ -2,6 +2,19 @@
 
 A simple, elegant file sharing web app that lets you access your laptop's files from your phone via Tailscale.
 
+## Screenshots
+
+<p float="left">
+  <img src="screenshots/Screenshot_20260323-112747.png" width="200" />
+  <img src="screenshots/Screenshot_20260323-112752.png" width="200" />
+  <img src="screenshots/Screenshot_20260323-112820.png" width="200" />
+</p>
+<p float="left">
+  <img src="screenshots/Screenshot_20260323-112831.png" width="200" />
+  <img src="screenshots/Screenshot_20260323-112843.png" width="200" />
+  <img src="screenshots/Screenshot_20260323-112906.png" width="200" />
+</p>
+
 ## Features
 
 - 📁 **Browse Files** — Navigate your entire home directory from browser
