@@ -5,14 +5,12 @@ A simple, elegant file sharing web app that lets you access your laptop's files 
 ## Screenshots
 
 <p float="left">
-  <img src="screenshots/Screenshot_20260323-112747.png" width="200" />
-  <img src="screenshots/Screenshot_20260323-112752.png" width="200" />
-  <img src="screenshots/Screenshot_20260323-112820.png" width="200" />
+  <img src="screenshots/Screenshot_20260418-175812.png" width="200" />
+  <img src="screenshots/Screenshot_20260418-175856.png" width="200" />
 </p>
 <p float="left">
-  <img src="screenshots/Screenshot_20260323-112831.png" width="200" />
-  <img src="screenshots/Screenshot_20260323-112843.png" width="200" />
-  <img src="screenshots/Screenshot_20260323-112906.png" width="200" />
+  <img src="screenshots/Screenshot_20260418-175929.png" width="200" />
+  <img src="screenshots/Screenshot_20260418-175950.png" width="200" />
 </p>
 
 ## Features
@@ -24,7 +22,7 @@ A simple, elegant file sharing web app that lets you access your laptop's files 
 - 🗑️ **Delete** — Remove files/folders
 - ➕ **Create Folders** — Organize your files
 - 🔐 **Secure** — Only accessible via Tailscale (not exposed to internet)
-- 🌙 **Dark Mode** — Beautiful minimal dark UI
+- ✨ **Modern UI** — Beautiful glassmorphism design with smooth animations
 
 ## Requirements
 
@@ -50,9 +48,6 @@ venv\Scripts\activate  # Windows
 
 # Install dependencies
 pip install -r requirements.txt
-
-# Run migrations
-python manage.py migrate
 ```
 
 ### 2. Install & Setup Tailscale
@@ -68,35 +63,12 @@ sudo tailscale up
 sudo tailscale set --hostname=device
 ```
 
-### 3. Start the Server (Recommended)
-
-Use the startup script for a seamless experience:
+### 3. Start the Server
 
 ```bash
-# Make the script executable
-chmod +x start.sh
-
-# Run the server (starts Tailscale automatically, stops everything on Ctrl+C)
-./start.sh
+# Start server (binds to all interfaces for phone access)
+source venv/bin/activate && python manage.py runserver 0.0.0.0:8000
 ```
-
-This script will:
-- Automatically start Tailscale
-- Connect and get your Tailscale IP
-- Launch the Django server
-- Cleanly shut down Tailscale when you press Ctrl+C
-
-### Alternative: Manual Start
-
-```bash
-# Get your Tailscale IP
-tailscale ip -4
-
-# Start server on Tailscale IP
-python manage.py runserver 100.x.x.x:8000
-```
-
-Replace `100.x.x.x` with your Tailscale IP.
 
 ### 4. Access From Phone
 
@@ -104,12 +76,10 @@ Replace `100.x.x.x` with your Tailscale IP.
 2. Login with the same account
 3. Open browser and go to:
    ```
-   http://device:8000
+   http:// YOUR_LAPTOP_IP :8000
    ```
-   or use your Tailscale IP:
-   ```
-   http://100.x.x.x:8000
-   ```
+
+Get your laptop IP with: `hostname -I`
 
 ## Configuration
 
@@ -126,63 +96,41 @@ SHARE_ROOT = Path('/home/shahzan')
 SHARE_ROOT = Path('/home/username/YourFolder')
 ```
 
-### Change Port
-
-Edit the runserver command:
-
-```bash
-python manage.py runserver 100.x.x.x:9000
-```
-
 ## Project Structure
 
 ```
 FileShare/
-├── start.sh            # Quick start script (recommended)
+├── start.sh            # Quick start script (deprecated)
 ├── manage.py          # Django management script
-├── requirements.txt   # Python dependencies
-├── README.md          # Documentation
-├── .gitignore        # Git ignore rules
-├── LICENSE           # MIT License
-├── sharecore/        # Django project settings
-│   ├── settings.py   # App configuration
-│   └── urls.py       # URL routing
-├── files/            # Main app
-│   ├── views.py      # File operations
-│   ├── urls.py       # App URLs
+├── requirements.txt  # Python dependencies
+├── README.md         # Documentation
+├── .gitignore       # Git ignore rules
+├── LICENSE          # MIT License
+├── AGENTS.md        # Agent instructions
+├── sharecore/       # Django project settings
+│   ├── settings.py  # App configuration
+│   └── urls.py    # URL routing
+├── files/           # Main app
+│   ├── views.py   # File operations
+│   ├── urls.py   # App URLs
 │   └── templates/
 │       └── files/
 │           └── index.html  # Frontend UI
-└── screenshots/      # App screenshots
-```
-
-## Available Commands
-
-```bash
-# Start server
-python manage.py runserver 100.x.x.x:8000
-
-# Create migrations (if you modify models)
-python makemigrations
-python migrate
-
-# Apply migrations
-python migrate
+└── screenshots/    # App screenshots
 ```
 
 ## Security Notes
 
-- 🔒 The server binds to your Tailscale IP only — not exposed to public internet
+- 🔒 The server binds to all interfaces — access controlled by Tailscale
 - 📱 Only devices connected to your Tailscale network can access
 - 🛡️ Files are protected by Tailscale's encryption
-- ⚠️ No authentication by default — add if needed for extra security
 
 ## Troubleshooting
 
 ### Can't access the URL?
 - Make sure Tailscale is running on both laptop and phone
 - Check the hostname: `tailscale status`
-- Try using the IP instead: `http://100.x.x.x:8000`
+- Try using the IP instead: `http://YOUR_IP:8000`
 
 ### Server won't start?
 - Make sure port 8000 is not in use
